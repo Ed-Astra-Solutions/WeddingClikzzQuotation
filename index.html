@@ -1649,6 +1649,52 @@
             color: var(--text-light);
         }
 
+        .service-crew {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.6rem;
+        }
+
+        .service-crew-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gold-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-right: 0.15rem;
+        }
+
+        .crew-btn {
+            width: 26px;
+            height: 26px;
+            border: 1px solid var(--gold);
+            background: #fff;
+            color: var(--gold-dark);
+            border-radius: 6px;
+            font-size: 1rem;
+            line-height: 1;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .crew-btn:hover {
+            background: var(--gold);
+            color: #fff;
+        }
+
+        .crew-count {
+            min-width: 20px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--charcoal);
+        }
+
         .service-price {
             font-family: 'Cormorant Garamond', serif;
             font-size: 1.25rem;
@@ -3852,9 +3898,15 @@
         // State Management
         let selectedEvents = [];
         let selectedServices = {};
+        let serviceCrew = {}; // Per-service crew size (photographers): { eventSlug: { serviceSlug: count } }
         let selectedAdditionalServices = {}; // Now per-event: { eventSlug: [{ id, slug, name, price }] }
         let eventDates = {};
         let customerDetails = {};
+
+        // Get crew size (number of photographers) for a service, default 1
+        function getCrew(eventSlug, serviceSlug) {
+            return (serviceCrew[eventSlug] && serviceCrew[eventSlug][serviceSlug]) || 1;
+        }
 
         // DOM Elements
         let eventCards;
@@ -4689,10 +4741,13 @@
                 eventServices.forEach(serviceSlug => {
                     const service = eventData.services.find(s => s.slug === serviceSlug);
                     if (service) {
-                        eventTotal += service.price;
+                        const crew = getCrew(eventSlug, serviceSlug);
+                        const linePrice = service.price * crew;
+                        eventTotal += linePrice;
+                        const crewNote = crew > 1 ? ` <small style="color: var(--gold-dark);">(${crew} photographers × ₹${service.price.toLocaleString('en-IN')})</small>` : '';
                         html += `<div class="quote-service-row">
-                            <span class="quote-service-name">${service.name}</span>
-                            <span class="quote-service-price">₹${service.price.toLocaleString('en-IN')}</span>
+                            <span class="quote-service-name">${service.name}${crewNote}</span>
+                            <span class="quote-service-price">₹${linePrice.toLocaleString('en-IN')}</span>
                         </div>`;
                     }
                 });
@@ -4787,12 +4842,15 @@
                         <span>Please select at least 1 service for this event</span>
                     </div>
                     <div class="services-grid" data-event="${eventSlug}">
-                        ${services.map(service => `
-                            <div class="service-item ${selectedServices[eventSlug].includes(service.slug) ? 'selected' : ''}" 
-                                 data-service="${service.slug}" 
+                        ${services.map(service => {
+                            const isSelected = selectedServices[eventSlug].includes(service.slug);
+                            const crew = getCrew(eventSlug, service.slug);
+                            return `
+                            <div class="service-item ${isSelected ? 'selected' : ''}"
+                                 data-service="${service.slug}"
                                  data-price="${service.price}"
                                  data-name="${service.name}">
-                                <input type="checkbox" ${selectedServices[eventSlug].includes(service.slug) ? 'checked' : ''}>
+                                <input type="checkbox" ${isSelected ? 'checked' : ''}>
                                 <div class="service-checkbox">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
@@ -4801,9 +4859,15 @@
                                 <div class="service-info">
                                     <h4>${service.name}</h4>
                                     <p>${service.description || ''}</p>
+                                    <div class="service-crew" data-event="${eventSlug}" data-service="${service.slug}" style="display: ${isSelected ? 'flex' : 'none'};">
+                                        <span class="service-crew-label">Photographers</span>
+                                        <button type="button" class="crew-btn crew-minus" aria-label="Remove photographer">&minus;</button>
+                                        <span class="crew-count">${crew}</span>
+                                        <button type="button" class="crew-btn crew-plus" aria-label="Add photographer">+</button>
+                                    </div>
                                 </div>
                             </div>
-                        `).join('')}
+                        `;}).join('')}
                     </div>
                     ${generateAddonsHTML(eventSlug)}
                 `;
@@ -4815,23 +4879,56 @@
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    
+
                     const eventSlug = item.closest('.services-grid').dataset.event;
                     const serviceSlug = item.dataset.service;
-                    
+
                     item.classList.toggle('selected');
                     const checkbox = item.querySelector('input');
                     checkbox.checked = item.classList.contains('selected');
+
+                    const crewControl = item.querySelector('.service-crew');
 
                     if (item.classList.contains('selected')) {
                         if (!selectedServices[eventSlug].includes(serviceSlug)) {
                             selectedServices[eventSlug].push(serviceSlug);
                         }
+                        // Default crew size to 1 when first selected
+                        if (!serviceCrew[eventSlug]) serviceCrew[eventSlug] = {};
+                        if (!serviceCrew[eventSlug][serviceSlug]) serviceCrew[eventSlug][serviceSlug] = 1;
+                        if (crewControl) crewControl.style.display = 'flex';
                     } else {
                         selectedServices[eventSlug] = selectedServices[eventSlug].filter(s => s !== serviceSlug);
+                        if (serviceCrew[eventSlug]) delete serviceCrew[eventSlug][serviceSlug];
+                        if (crewControl) crewControl.style.display = 'none';
                     }
 
                     updateStep3Button();
+                    updatePriceSummary();
+                });
+            });
+
+            // Crew size steppers (number of photographers) — adjust without toggling the card
+            document.querySelectorAll('.service-crew .crew-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const control = btn.closest('.service-crew');
+                    const eventSlug = control.dataset.event;
+                    const serviceSlug = control.dataset.service;
+
+                    if (!serviceCrew[eventSlug]) serviceCrew[eventSlug] = {};
+                    let crew = serviceCrew[eventSlug][serviceSlug] || 1;
+
+                    if (btn.classList.contains('crew-plus')) {
+                        crew += 1;
+                    } else if (crew > 1) {
+                        crew -= 1;
+                    }
+
+                    serviceCrew[eventSlug][serviceSlug] = crew;
+                    control.querySelector('.crew-count').textContent = crew;
                     updatePriceSummary();
                 });
             });
@@ -4873,7 +4970,8 @@
                     if (service) {
                         eventServiceCount++;
                         totalServices++;
-                        serviceNames.push(service.name);
+                        const crew = getCrew(eventSlug, serviceSlug);
+                        serviceNames.push(service.name + (crew > 1 ? ` × ${crew} photographers` : ''));
                     }
                 });
 
@@ -5018,12 +5116,16 @@
                     // Find service in event's services (which has category-specific pricing)
                     const service = eventData.services.find(s => s.slug === serviceSlug);
                     if (service) {
-                        subtotal += service.price;
+                        const crew = getCrew(eventSlug, serviceSlug);
+                        const linePrice = service.price * crew;
+                        subtotal += linePrice;
                         items.push({
                             event: eventData.name,
                             eventSlug: eventSlug,
                             service: service.name,
-                            price: service.price
+                            crew: crew,
+                            unitPrice: service.price,
+                            price: linePrice
                         });
                     }
                 });
@@ -5095,7 +5197,7 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                         </svg>
-                                        ${service.service}
+                                        ${service.service}${service.crew > 1 ? ` <small style="color: var(--gold-dark);">(${service.crew} photographers × ₹${(service.unitPrice || 0).toLocaleString('en-IN')})</small>` : ''}
                                     </span>
                                     <span class="services-preview-item-price">₹${service.price.toLocaleString('en-IN')}</span>
                                 </div>
@@ -5180,7 +5282,8 @@
                     apiItems.push({
                         eventId: eventData._id,
                         serviceId: serviceId,
-                        eventDate: eventDates[eventSlug] || null
+                        eventDate: eventDates[eventSlug] || null,
+                        crew: item.crew || 1
                     });
                 }
             });
@@ -5425,8 +5528,11 @@
                 services.forEach(service => {
                     // Check if we need a new page for this service
                     checkPageBreak(12);
-                    
-                    doc.text('    - ' + service.service, margin + 10, y);
+
+                    const serviceLabel = service.crew > 1
+                        ? `    - ${service.service} (${service.crew} photographers x Rs.${(service.unitPrice || 0).toLocaleString('en-IN')})`
+                        : '    - ' + service.service;
+                    doc.text(serviceLabel, margin + 10, y);
                     doc.setTextColor(44, 44, 44);
                     doc.text('Rs.' + service.price.toLocaleString('en-IN'), pageWidth - margin - 25, y);
                     doc.setTextColor(107, 107, 107);
@@ -5560,6 +5666,7 @@
         function resetForm() {
             selectedEvents = [];
             selectedServices = {};
+            serviceCrew = {};
             eventDates = {};
             customerDetails = {};
             selectedAdditionalServices = {};
