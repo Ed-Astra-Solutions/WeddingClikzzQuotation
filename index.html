@@ -4744,7 +4744,7 @@
                         const crew = getCrew(eventSlug, serviceSlug);
                         const linePrice = service.price * crew;
                         eventTotal += linePrice;
-                        const crewNote = crew > 1 ? ` <small style="color: var(--gold-dark);">(${crew} photographers × ₹${service.price.toLocaleString('en-IN')})</small>` : '';
+                        const crewNote = crew > 1 ? ` <small style="color: var(--gold-dark);">(${crew} ${(service.crewLabel || 'Photographers').toLowerCase()} × ₹${service.price.toLocaleString('en-IN')})</small>` : '';
                         html += `<div class="quote-service-row">
                             <span class="quote-service-name">${service.name}${crewNote}</span>
                             <span class="quote-service-price">₹${linePrice.toLocaleString('en-IN')}</span>
@@ -4818,7 +4818,7 @@
                 if (!eventData) return;
 
                 const services = eventData.services || [];
-                
+
                 if (services.length === 0) {
                     return; // Skip events with no services
                 }
@@ -4845,6 +4845,7 @@
                         ${services.map(service => {
                             const isSelected = selectedServices[eventSlug].includes(service.slug);
                             const crew = getCrew(eventSlug, service.slug);
+                            const crewOn = service.crewEnabled !== false;
                             return `
                             <div class="service-item ${isSelected ? 'selected' : ''}"
                                  data-service="${service.slug}"
@@ -4859,12 +4860,13 @@
                                 <div class="service-info">
                                     <h4>${service.name}</h4>
                                     <p>${service.description || ''}</p>
+                                    ${crewOn ? `
                                     <div class="service-crew" data-event="${eventSlug}" data-service="${service.slug}" style="display: ${isSelected ? 'flex' : 'none'};">
-                                        <span class="service-crew-label">Photographers</span>
-                                        <button type="button" class="crew-btn crew-minus" aria-label="Remove photographer">&minus;</button>
+                                        <span class="service-crew-label">${service.crewLabel || 'Photographers'}</span>
+                                        <button type="button" class="crew-btn crew-minus" aria-label="Remove one">&minus;</button>
                                         <span class="crew-count">${crew}</span>
-                                        <button type="button" class="crew-btn crew-plus" aria-label="Add photographer">+</button>
-                                    </div>
+                                        <button type="button" class="crew-btn crew-plus" aria-label="Add one">+</button>
+                                    </div>` : ''}
                                 </div>
                             </div>
                         `;}).join('')}
@@ -4971,7 +4973,7 @@
                         eventServiceCount++;
                         totalServices++;
                         const crew = getCrew(eventSlug, serviceSlug);
-                        serviceNames.push(service.name + (crew > 1 ? ` × ${crew} photographers` : ''));
+                        serviceNames.push(service.name + (crew > 1 ? ` × ${crew} ${(service.crewLabel || 'Photographers').toLowerCase()}` : ''));
                     }
                 });
 
