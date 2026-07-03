@@ -1659,12 +1659,13 @@
         }
 
         .service-crew-label {
+            flex-basis: 100%;
             font-size: 0.75rem;
             font-weight: 600;
             color: var(--gold-dark);
             text-transform: uppercase;
             letter-spacing: 0.03em;
-            margin-right: 0.15rem;
+            margin-bottom: 0.1rem;
         }
 
         .crew-btn {
@@ -3777,11 +3778,13 @@
                             <h4>Terms & Conditions</h4>
                         </div>
                         <ul class="terms-list">
-                            <li><span class="term-bullet">*</span>10% advance payment required to confirm booking</li>
-                            <li><span class="term-bullet">*</span>Balance payment to be completed before the wedding date</li>
-                            <li><span class="term-bullet">*</span>Edited photos delivered within 15 days</li>
-                            <li><span class="term-bullet">*</span>Cinematic video delivered within 4 weeks</li>
-                            <li><span class="term-bullet">*</span>Travel and accommodation charges extra for outstation events</li>
+                            <li><span class="term-bullet">*</span>10% + applicable GST advance payment is required to confirm the booking</li>
+                            <li><span class="term-bullet">*</span>Balance payment shall be made as per the agreed contract terms</li>
+                            <li><span class="term-bullet">*</span>Travel, accommodation, and applicable permits are chargeable extra for outstation events</li>
+                            <li><span class="term-bullet">*</span>This quotation is valid for 7 days from the date of issue. Prices are subject to revision after the validity period</li>
+                            <li><span class="term-bullet">*</span>Event dates are confirmed on a first-come, first-served basis and will be reserved only upon receipt of the booking advance</li>
+                            <li><span class="term-bullet">*</span>Prices are transparent with no hidden charges. Any additional services requested beyond the selected package will be charged separately</li>
+                            <li><span class="term-bullet">*</span>Wedding Clickz undertakes a limited number of weddings each month to ensure premium quality and personalized service. Early booking is recommended</li>
                         </ul>
                     </div>
 
@@ -5601,31 +5604,46 @@
             doc.text('Rs.' + total.toLocaleString('en-IN'), pageWidth - margin - 25, y);
 
             // Terms & Conditions
+            const terms = [
+                '* 10% + applicable GST advance payment is required to confirm the booking',
+                '* Balance payment shall be made as per the agreed contract terms',
+                '* Travel, accommodation, and applicable permits are chargeable extra for outstation events',
+                '* This quotation is valid for 7 days from the date of issue. Prices are subject to revision after the validity period',
+                '* Event dates are confirmed on a first-come, first-served basis and will be reserved only upon receipt of the booking advance',
+                '* Prices are transparent with no hidden charges. Any additional services requested beyond the selected package will be charged separately',
+                '* Wedding Clickz undertakes a limited number of weddings each month to ensure premium quality and personalized service. Early booking is recommended'
+            ];
+
+            // Wrap each term to fit within the box width
+            const termsBoxWidth = pageWidth - (margin * 2);
+            const termLineHeight = 4;
+            doc.setFontSize(8);
+            const wrappedTerms = [];
+            terms.forEach((term) => {
+                doc.splitTextToSize(term, termsBoxWidth - 10).forEach((line) => wrappedTerms.push(line));
+            });
+
+            // Box height = top padding + header + gap + wrapped lines + bottom padding
+            const termsBoxHeight = 14 + (wrappedTerms.length * termLineHeight) + 4;
+
             y += 20;
+            checkPageBreak(termsBoxHeight + 5);
             doc.setFillColor(250, 247, 242);
-            doc.rect(margin, y, pageWidth - (margin * 2), 45, 'F');
-            
+            doc.rect(margin, y, termsBoxWidth, termsBoxHeight, 'F');
+
             y += 8;
             doc.setTextColor(44, 44, 44);
             doc.setFontSize(10);
             doc.setFont('helvetica', 'bold');
             doc.text('Terms & Conditions', margin + 5, y);
-            
+
             y += 6;
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(8);
             doc.setTextColor(107, 107, 107);
-            
-            const terms = [
-                '* 10% advance payment required to confirm booking',
-                '* Balance payment to be completed before the wedding date',
-                '* Edited photos delivered within 15 days',
-                '* Cinematic video delivered within 4 weeks',
-                '* Travel and accommodation charges extra for outstation events'
-            ];
-            
-            terms.forEach((term, i) => {
-                doc.text(term, margin + 5, y + (i * 5));
+
+            wrappedTerms.forEach((line, i) => {
+                doc.text(line, margin + 5, y + (i * termLineHeight));
             });
 
             // Footer
