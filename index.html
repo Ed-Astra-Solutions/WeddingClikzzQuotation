@@ -1334,6 +1334,27 @@
             color: var(--gold);
         }
 
+        .quote-total-discount-note {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed rgba(201, 168, 124, 0.4);
+        }
+
+        .quote-total-discount-note svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--gold);
+            flex-shrink: 0;
+        }
+
+        .quote-total-discount-note span {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
         /* Quote Next Steps Message */
         .quote-next-steps {
             display: flex;
@@ -1362,6 +1383,38 @@
 
         .quote-next-steps span strong {
             color: var(--gold-dark);
+        }
+
+        /* Quote Discount Section */
+        .quote-discount {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.25rem 1.5rem;
+            background: linear-gradient(135deg, rgba(201, 168, 124, 0.22), rgba(201, 168, 124, 0.10));
+            border: 1px dashed var(--gold);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .quote-discount svg {
+            width: 28px;
+            height: 28px;
+            stroke: var(--gold-dark);
+            flex-shrink: 0;
+        }
+
+        .quote-discount .quote-discount-body strong {
+            display: block;
+            color: var(--gold-dark);
+            font-size: 1rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .quote-discount .quote-discount-body p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin: 0;
         }
 
         /* Event Add-ons Section Styles */
@@ -3741,6 +3794,23 @@
                             <span class="quote-total-label">Total Amount</span>
                             <span class="quote-total-amount" id="quoteTotalAmount">₹0</span>
                         </div>
+                        <div class="quote-total-discount-note">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5a1.99 1.99 0 011.414.586l7 7a2 2 0 010 2.828l-5 5a2 2 0 01-2.828 0l-7-7A1.99 1.99 0 013 12V7a4 4 0 014-4z"/>
+                            </svg>
+                            <span>Reach out to our team for discount offers.</span>
+                        </div>
+                    </div>
+
+                    <!-- Discount Offer Section -->
+                    <div class="quote-discount">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5a1.99 1.99 0 011.414.586l7 7a2 2 0 010 2.828l-5 5a2 2 0 01-2.828 0l-7-7A1.99 1.99 0 013 12V7a4 4 0 014-4z"/>
+                        </svg>
+                        <div class="quote-discount-body">
+                            <strong>Looking for a discount?</strong>
+                            <p>Reach out to our team for exclusive discount offers.</p>
+                        </div>
                     </div>
 
                     <!-- Next Steps Message -->
@@ -3814,7 +3884,7 @@
                 <ul>
                     <li><a href="tel:+919740222927">+91 97402 22927</a></li>
                     <li><a href="mailto:info@weddingclickz.com">info@weddingclickz.com</a></li>
-                    <li><a href="https://maps.google.com/?q=2nd+floor,+47th+Cross+Rd,+5th+Block,+TMC+Layout,+1st+Phase,+Jayanagar,+Bengaluru,+Karnataka+560041" target="_blank">2nd floor, 47th Cross Rd, 5th Block,<br>TMC Layout, 1st Phase, Jayanagar,<br>Bengaluru, Karnataka 560041</a></li>
+                    <li><a href="https://maps.google.com/?q=ClayWorks+Shankaraa,+Kanakapura+Main+Rd,+Munireddy+Layout,+Konanakunte,+Bengaluru,+Karnataka+560062" target="_blank">ClayWorks Shankaraa,<br>Kanakapura Main Rd, Munireddy Layout,<br>Konanakunte, Bengaluru, Karnataka 560062</a></li>
                 </ul>
             </div>
             <div class="footer-logo">
@@ -5439,9 +5509,9 @@
             doc.setTextColor(107, 107, 107);
 
             const fromLines = [
-                '2nd floor, 47th Cross Rd, 5th Block,',
-                'TMC Layout, 1st Phase, Jayanagar,',
-                'Bengaluru, Karnataka 560041',
+                'ClayWorks Shankaraa,',
+                'Kanakapura Main Rd, Munireddy Layout,',
+                'Konanakunte, Bengaluru, Karnataka 560062',
                 'Phone: +91 97402 22927'
             ];
 
