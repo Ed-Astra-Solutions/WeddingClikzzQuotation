@@ -5673,6 +5673,14 @@
             doc.setFontSize(14);
             doc.text('Rs.' + total.toLocaleString('en-IN'), pageWidth - margin - 25, y);
 
+            // Discount note (right after total)
+            y += 7;
+            doc.setFont('helvetica', 'italic');
+            doc.setFontSize(8.5);
+            doc.setTextColor(139, 115, 85);
+            doc.text('Discount: Reach out to our team for discount offers.', pageWidth - margin, y, { align: 'right' });
+            doc.setFont('helvetica', 'normal');
+
             // Terms & Conditions
             const terms = [
                 '* 10% + applicable GST advance payment is required to confirm the booking',
